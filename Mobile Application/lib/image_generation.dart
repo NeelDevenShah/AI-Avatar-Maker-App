@@ -14,6 +14,39 @@ class _ImageGenerationPageState extends State<ImageGenerationPage> {
   String? _imagePath;
   bool _isLoading = false;
 
+  // Define options for dropdowns
+  final List<String> _genders = ['Male', 'Female', 'Non-binary', 'Other'];
+  final List<String> _ethnicities = [
+    'Asian',
+    'Black',
+    'Caucasian',
+    'Hispanic',
+    'Other'
+  ];
+  final List<String> _skinTones = ['Light', 'Medium', 'Dark'];
+  final List<String> _bodyTypes = ['Slim', 'Average', 'Athletic', 'Heavy'];
+  final List<String> _hairColors = ['Black', 'Brown', 'Blonde', 'Red', 'Other'];
+  final List<String> _clothingTops = [
+    'Casual',
+    'Formal',
+    'Sportswear',
+    'Other'
+  ];
+  final List<String> _clothingBottoms = [
+    'Jeans',
+    'Shorts',
+    'Skirt',
+    'Trousers'
+  ];
+
+  String? _selectedGender;
+  String? _selectedEthnicity;
+  String? _selectedSkinTone;
+  String? _selectedBodyType;
+  String? _selectedHairColor;
+  String? _selectedClothingTop;
+  String? _selectedClothingBottom;
+
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -52,108 +85,152 @@ class _ImageGenerationPageState extends State<ImageGenerationPage> {
   @override
   Widget build(BuildContext context) {
     return BasePage(
-      title: 'Generate Image 12',
+      title: 'Generate Image based on Options',
       body: Form(
         key: _formKey,
         child: ListView(
           padding: EdgeInsets.all(16.0),
           children: [
-            TextFormField(
-              decoration: InputDecoration(labelText: 'Age'),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your age';
-                }
-                return null;
-              },
-              onSaved: (value) => _formData['age'] = value!,
-            ),
-            TextFormField(
+            DropdownButtonFormField<String>(
               decoration: InputDecoration(labelText: 'Gender'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your gender';
-                }
-                return null;
+              value: _selectedGender,
+              onChanged: (newValue) {
+                setState(() {
+                  _selectedGender = newValue;
+                  _formData['gender'] = newValue!;
+                });
               },
-              onSaved: (value) => _formData['gender'] = value!,
+              items: _genders.map((gender) {
+                return DropdownMenuItem(
+                  value: gender,
+                  child: Text(gender),
+                );
+              }).toList(),
+              validator: (value) =>
+                  value == null ? 'Please select your gender' : null,
             ),
-            TextFormField(
+            DropdownButtonFormField<String>(
               decoration: InputDecoration(labelText: 'Ethnicity'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your ethnicity';
-                }
-                return null;
+              value: _selectedEthnicity,
+              onChanged: (newValue) {
+                setState(() {
+                  _selectedEthnicity = newValue;
+                  _formData['ethnicity'] = newValue!;
+                });
               },
-              onSaved: (value) => _formData['ethnicity'] = value!,
+              items: _ethnicities.map((ethnicity) {
+                return DropdownMenuItem(
+                  value: ethnicity,
+                  child: Text(ethnicity),
+                );
+              }).toList(),
+              validator: (value) =>
+                  value == null ? 'Please select your ethnicity' : null,
             ),
-            TextFormField(
+            DropdownButtonFormField<String>(
               decoration: InputDecoration(labelText: 'Skin Tone'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your skin tone';
-                }
-                return null;
+              value: _selectedSkinTone,
+              onChanged: (newValue) {
+                setState(() {
+                  _selectedSkinTone = newValue;
+                  _formData['skin_tone'] = newValue!;
+                });
               },
-              onSaved: (value) => _formData['skin_tone'] = value!,
+              items: _skinTones.map((skinTone) {
+                return DropdownMenuItem(
+                  value: skinTone,
+                  child: Text(skinTone),
+                );
+              }).toList(),
+              validator: (value) =>
+                  value == null ? 'Please select your skin tone' : null,
             ),
-            TextFormField(
+            DropdownButtonFormField<String>(
               decoration: InputDecoration(labelText: 'Body Type'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your body type';
-                }
-                return null;
+              value: _selectedBodyType,
+              onChanged: (newValue) {
+                setState(() {
+                  _selectedBodyType = newValue;
+                  _formData['body_type'] = newValue!;
+                });
               },
-              onSaved: (value) => _formData['body_type'] = value!,
+              items: _bodyTypes.map((bodyType) {
+                return DropdownMenuItem(
+                  value: bodyType,
+                  child: Text(bodyType),
+                );
+              }).toList(),
+              validator: (value) =>
+                  value == null ? 'Please select your body type' : null,
             ),
-            TextFormField(
-              decoration: InputDecoration(labelText: 'Hair Colour'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your hair color';
-                }
-                return null;
+            DropdownButtonFormField<String>(
+              decoration: InputDecoration(labelText: 'Hair Color'),
+              value: _selectedHairColor,
+              onChanged: (newValue) {
+                setState(() {
+                  _selectedHairColor = newValue;
+                  _formData['hair_colour'] = newValue!;
+                });
               },
-              onSaved: (value) => _formData['hair_colour'] = value!,
+              items: _hairColors.map((hairColor) {
+                return DropdownMenuItem(
+                  value: hairColor,
+                  child: Text(hairColor),
+                );
+              }).toList(),
+              validator: (value) =>
+                  value == null ? 'Please select your hair color' : null,
             ),
-            TextFormField(
+            DropdownButtonFormField<String>(
               decoration: InputDecoration(labelText: 'Clothing Top'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your clothing top';
-                }
-                return null;
+              value: _selectedClothingTop,
+              onChanged: (newValue) {
+                setState(() {
+                  _selectedClothingTop = newValue;
+                  _formData['clothing_top'] = newValue!;
+                });
               },
-              onSaved: (value) => _formData['clothing_top'] = value!,
+              items: _clothingTops.map((clothingTop) {
+                return DropdownMenuItem(
+                  value: clothingTop,
+                  child: Text(clothingTop),
+                );
+              }).toList(),
+              validator: (value) =>
+                  value == null ? 'Please select your clothing top' : null,
             ),
-            TextFormField(
+            DropdownButtonFormField<String>(
               decoration: InputDecoration(labelText: 'Clothing Bottom'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your clothing bottom';
-                }
-                return null;
+              value: _selectedClothingBottom,
+              onChanged: (newValue) {
+                setState(() {
+                  _selectedClothingBottom = newValue;
+                  _formData['clothing_bottom'] = newValue!;
+                });
               },
-              onSaved: (value) => _formData['clothing_bottom'] = value!,
+              items: _clothingBottoms.map((clothingBottom) {
+                return DropdownMenuItem(
+                  value: clothingBottom,
+                  child: Text(clothingBottom),
+                );
+              }).toList(),
+              validator: (value) =>
+                  value == null ? 'Please select your clothing bottom' : null,
             ),
-            TextFormField(
-              decoration: InputDecoration(labelText: 'Description'),
-              maxLines: 3,
-              onSaved: (value) => _formData['description'] = value!,
-            ),
+            SizedBox(height: 36),
             ElevatedButton(
               onPressed: _submitForm,
-              child: Text('Submit'),
+              child: _isLoading ? CircularProgressIndicator() : Text('Submit'),
             ),
             if (_imagePath != null)
-              Image.network(
-                _imagePath!,
-                height: 200,
-                width: 200,
-                fit: BoxFit.cover,
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: Image.network(
+                  _imagePath!,
+                  height: 200,
+                  width: 200,
+                  fit: BoxFit.cover,
+                ),
               ),
           ],
         ),

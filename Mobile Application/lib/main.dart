@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'home.dart';
 import 'gallery.dart';
 import 'image_generation.dart';
+import 'image_desc_generation.dart';
+import 'signup.dart';
+import 'login.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,10 +18,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/',
+      initialRoute: '/login', // Set the initial route to '/login'
       routes: {
-        '/': (context) => HomePage(),
-        '/generate': (context) => ImageGenerationPage(),
+        '/login': (context) => LoginPage(),
+        '/signup': (context) => SignupPage(),
+        '/home': (context) => HomePage(),
+        '/generate-options': (context) => ImageGenerationPage(),
+        '/generate-desc': (context) => ImageDescGenPage(),
         '/gallery': (context) => GalleryPage(),
       },
     );
