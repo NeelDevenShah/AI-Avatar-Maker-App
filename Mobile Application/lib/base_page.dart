@@ -32,14 +32,21 @@ class BasePage extends StatelessWidget {
               leading: Icon(Icons.home),
               title: Text('Home'),
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/');
+                Navigator.pushReplacementNamed(context, '/home');
               },
             ),
             ListTile(
               leading: Icon(Icons.image),
-              title: Text('Generate Image'),
+              title: Text('Generate Image based on Options'),
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/generate');
+                Navigator.pushReplacementNamed(context, '/generate-options');
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.image),
+              title: Text('Generate Image based on Description'),
+              onTap: () {
+                Navigator.pushReplacementNamed(context, '/generate-desc');
               },
             ),
             ListTile(

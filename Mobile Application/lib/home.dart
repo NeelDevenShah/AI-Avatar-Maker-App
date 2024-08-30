@@ -1,58 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'base_page.dart'; // Import the BasePage class
 
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Home'),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                'Menu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
+    return BasePage(
+      title: 'Home',
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Welcome to the AI Avatar Maker!',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/');
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.image),
-              title: Text('Generate Image'),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/generate');
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.photo_library),
-              title: Text('Gallery'),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/gallery');
-              },
+            SizedBox(height: 16),
+            Text(
+              'Create your own personalized avatar using artificial intelligence.',
+              style: TextStyle(
+                fontSize: 20,
+              ),
             ),
           ],
-        ),
-      ),
-      body: Center(
-        child: Text(
-          'Welcome to the Home Page!',
-          style: TextStyle(fontSize: 24),
         ),
       ),
     );
