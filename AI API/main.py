@@ -12,16 +12,17 @@ import random
 import zipfile
 from io import BytesIO
 
-
 app = FastAPI()
 
 # Load the model (you might want to do this outside the FastAPI app in a production setting)
-device = "cuda:0" if torch.cuda.is_available() else "cpu"
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print(f"Using device: {device}")
 pipe = StableDiffusionXLPipeline.from_pretrained(
         "fluently/Fluently-XL-v4",
         torch_dtype=torch.float16,
         use_safetensors=True,
     )
+
 pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(pipe.scheduler.config)
 pipe.load_lora_weights("ehristoforu/dalle-3-xl-v2", weight_name="dalle-3-xl-lora-v2.safetensors", adapter_name="dalle")
 pipe.set_adapters("dalle")
