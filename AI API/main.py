@@ -1,8 +1,8 @@
+from __future__ import annotations
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 import torch
-from __future__ import annotations
 import math
 import numpy as np
 import torch
@@ -87,6 +87,6 @@ async def generate_dummy(request: ImageRequest):
 
 if __name__ == "__main__":
     import uvicorn
-import os
-import base64
+    import os
+    import base64
     uvicorn.run(app, host="0.0.0.0", port=8000)
