@@ -86,13 +86,12 @@ async def generate_dummy(request: ImageRequest):
     return {"image": "/tmp/dummy.png"}
 
 if __name__ == "__main__":
-    import uvicorn
-    import os
-    import base64
+    # Set up ngrok
+    ngrok_tunnel = ngrok.connect(8000)
+    print('Public URL:', ngrok_tunnel.public_url)
 
-    # Start the FastAPI server
-    uvicorn_proc = uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info", reload=False)
+    # Nest asyncio allows us to run async code in Jupyter notebooks
+    nest_asyncio.apply()
 
-    # Set up the ngrok tunnel
-    public_url = ngrok.connect(8000)
-    print(f"ngrok tunnel: {public_url}")
+    # Run the FastAPI app
+    uvicorn.run(app, port=8000)
