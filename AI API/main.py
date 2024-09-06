@@ -6,13 +6,14 @@ import torch
 import math
 import numpy as np
 import torch
-from PIL import Image
-from diffusers import StableDiffusionXLPipeline, EulerAncestralDiscreteScheduler
 import os
 import random
-import zipfile
+import base64
 from io import BytesIO
-
+import zipfile
+from PIL import Image
+from diffusers import StableDiffusionXLPipeline, EulerAncestralDiscreteScheduler
+from pyngrok import ngrok
 
 app = FastAPI()
 
@@ -26,7 +27,6 @@ pipe = StableDiffusionXLPipeline.from_pretrained(
 pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(pipe.scheduler.config)
 pipe.load_lora_weights("ehristoforu/dalle-3-xl-v2", weight_name="dalle-3-xl-lora-v2.safetensors", adapter_name="dalle")
 pipe.set_adapters("dalle")
-
 
 def randomize_seed_fn(seed, randomize_seed):
     if randomize_seed:
@@ -80,7 +80,7 @@ async def generate_image(request: ImageRequest):
         return {"image": img_str}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 @app.post("/generate-dummy-image")
 async def generate_dummy(request: ImageRequest):
     return {"image": "/tmp/dummy.png"}
@@ -89,4 +89,10 @@ if __name__ == "__main__":
     import uvicorn
     import os
     import base64
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+    # Start the FastAPI server
+    uvicorn_proc = uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info", reload=False)
+
+    # Set up the ngrok tunnel
+    public_url = ngrok.connect(8000)
+    print(f"ngrok tunnel: {public_url}")
