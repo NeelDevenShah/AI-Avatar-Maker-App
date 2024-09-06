@@ -1,0 +1,11 @@
+torch
+numpy
+diffusers
+transformers
+pillow
+fastapi
+uvicorn
+pydantic
+peft
+pyngrok
+azure-storage-blob
