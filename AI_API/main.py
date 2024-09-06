@@ -63,8 +63,8 @@ class ParameterizedImageRequest(BaseModel):
     skinTone: str = "white"
     bodyType: str = "slim"
     hairColor: str = "black"
-    clothingTop: = "shirt"
-    clothingBottom: = "short"
+    clothingTop: str = "shirt"
+    clothingBottom: str = "short"
     steps: int = 8
     randomize_seed: bool = False
     seed: int = 25
@@ -74,7 +74,7 @@ class ParameterizedImageRequest(BaseModel):
     use_resolution_binning: bool = True
 
 @app.post("/generate-custom-image")
-async def generate_and_store_custom_image(request: ImageRequest):
+async def generate_and_store_custom_image(request: CustomImageRequest):
     try:
         # Get userId from the request
         user_id = request.user_id
@@ -120,7 +120,7 @@ async def generate_and_store_custom_image(request: ImageRequest):
         raise HTTPException(status_code=500, detail=str(e))
     
 @app.post("/generate-parameterized-image")
-async def generate_and_store_parameterized_image(request: ImageRequest):
+async def generate_and_store_parameterized_image(request: ParameterizedImageRequest):
     try:
         # Get userId from the request
         user_id = request.user_id
