@@ -14,6 +14,7 @@ import zipfile
 from PIL import Image
 from diffusers import StableDiffusionXLPipeline, EulerAncestralDiscreteScheduler
 from pyngrok import ngrok
+import nest_asyncio
 
 app = FastAPI()
 
