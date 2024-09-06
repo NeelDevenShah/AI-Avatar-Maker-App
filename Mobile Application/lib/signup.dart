@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'database_helper.dart';
 
 class SignupPage extends StatefulWidget {
   @override
@@ -10,9 +11,10 @@ class _SignupPageState extends State<SignupPage> {
   String _email = '';
   String _password = '';
 
-  void _signup() {
+  void _signup() async {
     if (_formKey.currentState!.validate()) {
-      // Implement signup logic here
+      _formKey.currentState!.save();
+      await DatabaseHelper().insertUser(_email, _password);
       Navigator.pushReplacementNamed(context, '/home');
     }
   }

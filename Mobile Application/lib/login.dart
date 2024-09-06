@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'database_helper.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -9,11 +10,19 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   String _email = '';
   String _password = '';
+  String _errorMessage = '';
 
-  void _login() {
+  void _login() async {
     if (_formKey.currentState!.validate()) {
-      // Implement login logic here
-      Navigator.pushReplacementNamed(context, '/home');
+      _formKey.currentState!.save();
+      final user = await DatabaseHelper().getUserByEmail(_email);
+      if (user != null && user['password'] == _password) {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        setState(() {
+          _errorMessage = 'Invalid email or password';
+        });
+      }
     }
   }
 
@@ -56,6 +65,14 @@ class _LoginPageState extends State<LoginPage> {
               onPressed: _login,
               child: Text('Login'),
             ),
+            if (_errorMessage.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  _errorMessage,
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
             TextButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/signup');
