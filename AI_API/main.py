@@ -1,5 +1,6 @@
 from __future__ import annotations
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from azure.storage.blob import BlobServiceClient
 from pydantic import BaseModel
 from typing import Optional
 import torch
@@ -15,8 +16,13 @@ from PIL import Image
 from diffusers import StableDiffusionXLPipeline, EulerAncestralDiscreteScheduler
 from pyngrok import ngrok
 import nest_asyncio
+uvicorn
 
 app = FastAPI()
+
+# Azure Blob Storage connection string
+connect_str = os.getenv('')
+container_name = "madprojectcontainer"
 
 # Load the model (you might want to do this outside the FastAPI app in a production setting)
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -28,6 +34,7 @@ pipe = StableDiffusionXLPipeline.from_pretrained(
 pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(pipe.scheduler.config)
 pipe.load_lora_weights("ehristoforu/dalle-3-xl-v2", weight_name="dalle-3-xl-lora-v2.safetensors", adapter_name="dalle")
 pipe.set_adapters("dalle")
+pipe.to(device)
 
 def randomize_seed_fn(seed, randomize_seed):
     if randomize_seed:
@@ -46,45 +53,47 @@ class ImageRequest(BaseModel):
     use_resolution_binning: bool = True
 
 @app.post("/generate-image")
-async def generate_image(request: ImageRequest):
+async def generate_and_store_image(request: Request, options: dict):
     try:
-        seed = int(randomize_seed_fn(request.seed, request.randomize_seed))
-        generator = torch.Generator().manual_seed(seed)
+        # Get userId from the request
+        user_id = request.query_params.get("userId")
+        if not user_id:
+            raise HTTPException(status_code=400, detail="userId is required")
 
-        options = {
-            "prompt": request.instruction,
-            "width": request.width,
-            "height": request.height,
-            "guidance_scale": request.guidance_scale,
-            "num_inference_steps": request.steps,
-            "generator": generator,
-            "use_resolution_binning": request.use_resolution_binning,
-            "output_type": "pil",
-        }
-
+        # Generate the image
         output_image = pipe(**options).images[0]
 
+        # Create a BlobServiceClient
+        blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+        container_client = blob_service_client.get_container_client(container_name)
+
+        # List blobs in the user's folder to determine the next number
+        user_folder = f"{user_id}/"
+        blobs = list(container_client.list_blobs(name_starts_with=user_folder))
+        next_number = len(blobs) + 1
+
         # Generate a unique filename
-        filename = f"user_{request.user_id}_{random.randint(0, 100000)}.png"
+        filename = f"{user_id}/image_{next_number}.png"
 
-        # Create the path to the tmp folder
-        tmp_folder = "/tmp"
+        # Convert the image to bytes
+        img_byte_arr = io.BytesIO()
+        output_image.save(img_byte_arr, format='PNG')
+        img_byte_arr = img_byte_arr.getvalue()
 
-        # Save the image to the tmp folder with the unique filename
-        output_image.save(os.path.join(tmp_folder, filename))
+        # Upload the image to Azure Blob Storage
+        blob_client = container_client.get_blob_client(filename)
+        blob_client.upload_blob(img_byte_arr, overwrite=True)
 
-        # Convert the image to base64
-        with open(os.path.join(tmp_folder, filename), "rb") as f:
-            img_bytes = f.read()
-        img_str = base64.b64encode(img_bytes).decode()
+        # Get the URL of the uploaded image
+        image_url = blob_client.url
 
-        return {"image": img_str}
+        # Convert the image to base64 for the response
+        img_str = base64.b64encode(img_byte_arr).decode()
+
+        return {"image": img_str, "image_url": image_url}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/generate-dummy-image")
-async def generate_dummy(request: ImageRequest):
-    return {"image": "/tmp/dummy.png"}
 
 if __name__ == "__main__":
     # Set up ngrok
