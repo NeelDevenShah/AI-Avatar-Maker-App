@@ -15,7 +15,7 @@ from io import BytesIO
 app = FastAPI()
 
 # Load the model (you might want to do this outside the FastAPI app in a production setting)
-device = "cuda" if torch.cuda.is_available() else "cpu"
+device =  "cpu"
 print(f"Using device: {device}")
 pipe = StableDiffusionXLPipeline.from_pretrained(
         "fluently/Fluently-XL-v4",
