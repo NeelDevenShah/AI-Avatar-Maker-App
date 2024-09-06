@@ -16,12 +16,13 @@ from PIL import Image
 from diffusers import StableDiffusionXLPipeline, EulerAncestralDiscreteScheduler
 from pyngrok import ngrok
 import nest_asyncio
-uvicorn
+import uvicorn
+import io
 
 app = FastAPI()
 
 # Azure Blob Storage connection string
-connect_str = os.getenv('')
+connect_str = ''
 container_name = "madprojectcontainer"
 
 # Load the model (you might want to do this outside the FastAPI app in a production setting)
@@ -53,14 +54,25 @@ class ImageRequest(BaseModel):
     use_resolution_binning: bool = True
 
 @app.post("/generate-image")
-async def generate_and_store_image(request: Request, options: dict):
+async def generate_and_store_image(request: ImageRequest):
     try:
         # Get userId from the request
-        user_id = request.query_params.get("userId")
-        if not user_id:
-            raise HTTPException(status_code=400, detail="userId is required")
+        user_id = request.user_id
+        
+        seed = int(randomize_seed_fn(request.seed, request.randomize_seed))
+        generator = torch.Generator().manual_seed(seed)
 
-        # Generate the image
+        options = {
+            "prompt": request.instruction,
+            "width": request.width,
+            "height": request.height,
+            "guidance_scale": request.guidance_scale,
+            "num_inference_steps": request.steps,
+            "generator": generator,
+            "use_resolution_binning": request.use_resolution_binning,
+            "output_type": "pil",
+        }
+
         output_image = pipe(**options).images[0]
 
         # Create a BlobServiceClient
@@ -83,14 +95,11 @@ async def generate_and_store_image(request: Request, options: dict):
         # Upload the image to Azure Blob Storage
         blob_client = container_client.get_blob_client(filename)
         blob_client.upload_blob(img_byte_arr, overwrite=True)
-
+        
         # Get the URL of the uploaded image
         image_url = blob_client.url
-
-        # Convert the image to base64 for the response
-        img_str = base64.b64encode(img_byte_arr).decode()
-
-        return {"image": img_str, "image_url": image_url}
+        
+        return {"image_url": image_url}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

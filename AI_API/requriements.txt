@@ -8,3 +8,4 @@ uvicorn
 pydantic
 peft
 pyngrok
+azure-storage-blob
