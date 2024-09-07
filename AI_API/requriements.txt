@@ -9,3 +9,5 @@ pydantic
 peft
 pyngrok
 azure-storage-blob
+passlib
+python-jose
