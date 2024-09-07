@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FasFastAPItAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from passlib.context import CryptContext
@@ -6,8 +6,8 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from typing import Optional
 
-# Initialize FastAPI app
-app = FastAPI()
+# Initialize the router
+router = APIRouter()
 
 # Secret key and algorithm for JWT
 SECRET_KEY = "testing"  # Replace with a secure key from environment variables
@@ -78,7 +78,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 # API for user signup
-@app.post("/signup", status_code=status.HTTP_201_CREATED)
+@router.post("/signup", status_code=status.HTTP_201_CREATED)
 async def signup(user: UserSignup):
     if user.email in fake_users_db:
         raise HTTPException(
@@ -98,7 +98,7 @@ async def signup(user: UserSignup):
     return {"msg": "User created successfully"}
 
 # API for user login and token generation
-@app.post("/token", response_model=Token)
+@router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)  # Using 'username' as 'email'
     if not user:
@@ -114,7 +114,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 # API to verify the token and get the current user
-@app.get("/users/me", response_model=User)
+@rputer.get("/users/me", response_model=User)
 async def read_users_me(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
