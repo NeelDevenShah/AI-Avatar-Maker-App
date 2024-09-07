@@ -11,3 +11,4 @@ pyngrok
 azure-storage-blob
 passlib
 python-jose
+python-multipart

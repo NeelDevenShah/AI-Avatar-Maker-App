@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from image_generation import router as image_router
+from generator_and_blob import router as image_router
 from auth import router as auth_router
 import uvicorn
 from pyngrok import ngrok

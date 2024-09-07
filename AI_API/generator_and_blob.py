@@ -1,5 +1,5 @@
 from __future__ import annotations
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from azure.storage.blob import BlobServiceClient
 from pydantic import BaseModel
 from typing import Optional
@@ -72,8 +72,8 @@ class ParameterizedImageRequest(BaseModel):
     guidance_scale: float = 6.2
     use_resolution_binning: bool = True
 
-@router.post("/generate-custom-image", current_user: str = Depends(get_current_active_user))
-async def generate_and_store_custom_image(request: CustomImageRequest):
+@router.post("/generate-custom-image")
+async def generate_and_store_custom_image(request: CustomImageRequest, current_user: str = Depends(get_current_active_user)):
     try:
         # Get userId from the request
         user_id = request.user_id
@@ -118,8 +118,8 @@ async def generate_and_store_custom_image(request: CustomImageRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-@router.post("/generate-parameterized-image", current_user: str = Depends(get_current_active_user))
-async def generate_and_store_parameterized_image(request: ParameterizedImageRequest):
+@router.post("/generate-parameterized-image")
+async def generate_and_store_parameterized_image(request: ParameterizedImageRequest, current_user: str = Depends(get_current_active_user)):
     try:
         # Get userId from the request
         user_id = request.user_id
@@ -179,8 +179,8 @@ async def generate_and_store_parameterized_image(request: ParameterizedImageRequ
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/get-user-gallery", current_user: str = Depends(get_current_active_user))
-async def get_user_gallery_urls(user_id: str):
+@router.post("/get-user-gallery")
+async def get_user_gallery_urls(user_id: str, current_user: str = Depends(get_current_active_user)):
     try:
         # Create a BlobServiceClient
         blob_service_client = BlobServiceClient.from_connection_string(connect_str)
