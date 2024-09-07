@@ -1,6 +1,6 @@
 from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Request, Depends
-from azure.storage.blob import BlobServiceClient
+from azure.storage.blob import BlobServiceClient, generate_blob_sas, BlobSasPermissions, generate_container_sas, ContainerSasPermissions
 from pydantic import BaseModel
 from typing import Optional
 import torch
@@ -15,13 +15,16 @@ import zipfile
 from PIL import Image
 from diffusers import StableDiffusionXLPipeline, EulerAncestralDiscreteScheduler
 import io
+from datetime import datetime, timedelta
 from auth import get_current_active_user
 
 # Initialize the router
 router = APIRouter()
 
 # Azure Blob Storage connection string
-connect_str = ''
+connect_str = ""
+account_key = ""
+account_name = "newneel"
 container_name = "madprojectcontainer"
 
 # Create a BlobServiceClient
@@ -69,6 +72,56 @@ class ParameterizedImageRequest(BaseModel):
     height: int = 1024
     guidance_scale: float = 6.2
     use_resolution_binning: bool = True
+    
+def get_sas_url_single_image(blob_name: str):
+    try:
+        # Create a BlobServiceClient using the account name and key
+        # TODO: Remove
+        # blob_service_client = BlobServiceClient(account_url=f"https://{account_name}.blob.core.windows.net", credential=account_key)
+
+        # Set the expiry time for the SAS token
+        expiry_time = datetime.utcnow() + timedelta(minutes=5)  # Token valid for 1 hour
+
+        # Generate the SAS token for the specific blob
+        sas_token = generate_blob_sas(
+            account_name=account_name,
+            container_name=container_name,
+            blob_name=blob_name,
+            account_key=account_key,
+            permission=BlobSasPermissions(read=True),  # Set permissions as needed
+            expiry=expiry_time
+        )
+        
+        # Construct the full URL for accessing the blob
+        blob_url = f"https://{account_name}.blob.core.windows.net/{container_name}/{blob_name}?{sas_token}"
+        
+        return blob_url  
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+def get_sas_for_list_images(user_email: str, image_urls):
+    try:
+        folder_name = user_email+"/"
+
+        # Create a BlobServiceClient using the account name and key
+        # TODO: Remove
+        # blob_service_client = BlobServiceClient(account_url=f"https://{account_name}.blob.core.windows.net", credential=account_key)
+
+        # Set the expiry time for the SAS token
+        expiry_time = datetime.utcnow() + timedelta(minutes=5)  # Token valid for 1 hour
+
+        # Generate the SAS token for the container
+        sas_token = generate_container_sas(
+            account_name=account_name,
+            container_name=container_name,
+            account_key=account_key,
+            permission=ContainerSasPermissions(read=True, list=True),  # Set permissions as needed (CHANGED PART, ADDED LIST=TRUE)
+            expiry=expiry_time,
+            start=datetime.utcnow()
+        )
+        return "?" + sas_token
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/generate-custom-image")
 async def generate_and_store_custom_image(request: CustomImageRequest, current_user: str = Depends(get_current_active_user)):
@@ -107,8 +160,12 @@ async def generate_and_store_custom_image(request: CustomImageRequest, current_u
         blob_client = container_client.get_blob_client(filename)
         blob_client.upload_blob(img_byte_arr, overwrite=True)
         
+        # Generating the SAS token for accessing the blob
+        image_url = get_sas_url_single_image(blob_name=filename)
+        
+        # TODO: Remove
         # Get the URL of the uploaded image
-        image_url = blob_client.url
+        # image_url = blob_client.url
         
         return {"image_url": image_url}
     except Exception as e:
@@ -166,8 +223,12 @@ async def generate_and_store_parameterized_image(request: ParameterizedImageRequ
         blob_client = container_client.get_blob_client(filename)
         blob_client.upload_blob(img_byte_arr, overwrite=True)
         
+        # Generating the SAS token for accessing the blob
+        image_url = get_sas_url_single_image(blob_name=filename)
+        
+        # TODO: Remove
         # Get the URL of the uploaded image
-        image_url = blob_client.url
+        # image_url = blob_client.url
         
         return {"image_url": image_url}
     except Exception as e:
@@ -183,13 +244,15 @@ async def get_user_gallery_urls(current_user: str = Depends(get_current_active_u
         # List blobs in the user's folder
         user_folder = f"{current_user.email}/"
         blobs = container_client.list_blobs(name_starts_with=user_folder)
+        
+        blob_sas_token = get_sas_for_list_images(current_user.email)
 
         # Get the URLs for all blobs
         image_urls = []
         for blob in blobs:
             blob_client = container_client.get_blob_client(blob.name)
-            image_urls.append(blob_client.url)
-
+            image_urls.append(blob_client.url + blob_sas_token)
+        
         return image_urls
 
     except Exception as e:
