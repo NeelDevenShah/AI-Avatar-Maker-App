@@ -46,7 +46,6 @@ def randomize_seed_fn(seed, randomize_seed):
     return seed
 
 class CustomImageRequest(BaseModel):
-    user_id: str = "none"
     instruction: str = "Eiffel tower"
     steps: int = 8
     randomize_seed: bool = False
@@ -57,7 +56,6 @@ class CustomImageRequest(BaseModel):
     use_resolution_binning: bool = True
 
 class ParameterizedImageRequest(BaseModel):
-    user_id: str = "none"
     gender: str = "male"
     skinTone: str = "white"
     bodyType: str = "slim"
@@ -75,8 +73,6 @@ class ParameterizedImageRequest(BaseModel):
 @router.post("/generate-custom-image")
 async def generate_and_store_custom_image(request: CustomImageRequest, current_user: str = Depends(get_current_active_user)):
     try:
-        # Get userId from the request
-        user_id = request.user_id
         
         seed = int(randomize_seed_fn(request.seed, request.randomize_seed))
         generator = torch.Generator().manual_seed(seed)
@@ -95,12 +91,12 @@ async def generate_and_store_custom_image(request: CustomImageRequest, current_u
         output_image = pipe(**options).images[0]
 
         # List blobs in the user's folder to determine the next number
-        user_folder = f"{user_id}/"
+        user_folder = f"{current_user.email}/"
         blobs = list(container_client.list_blobs(name_starts_with=user_folder))
         next_number = len(blobs) + 1
 
         # Generate a unique filename
-        filename = f"{user_id}/image_{next_number}.png"
+        filename = f"{current_user.email}/image_{next_number}.png"
 
         # Convert the image to bytes
         img_byte_arr = io.BytesIO()
@@ -121,8 +117,6 @@ async def generate_and_store_custom_image(request: CustomImageRequest, current_u
 @router.post("/generate-parameterized-image")
 async def generate_and_store_parameterized_image(request: ParameterizedImageRequest, current_user: str = Depends(get_current_active_user)):
     try:
-        # Get userId from the request
-        user_id = request.user_id
         
         seed = int(randomize_seed_fn(request.seed, request.randomize_seed))
         generator = torch.Generator().manual_seed(seed)
@@ -156,12 +150,12 @@ async def generate_and_store_parameterized_image(request: ParameterizedImageRequ
         container_client = blob_service_client.get_container_client(container_name)
 
         # List blobs in the user's folder to determine the next number
-        user_folder = f"{user_id}/"
+        user_folder = f"{current_user.email}/"
         blobs = list(container_client.list_blobs(name_starts_with=user_folder))
         next_number = len(blobs) + 1
 
         # Generate a unique filename
-        filename = f"{user_id}/image_{next_number}.png"
+        filename = f"{current_user.email}/image_{next_number}.png"
 
         # Convert the image to bytes
         img_byte_arr = io.BytesIO()
@@ -180,14 +174,14 @@ async def generate_and_store_parameterized_image(request: ParameterizedImageRequ
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/get-user-gallery")
-async def get_user_gallery_urls(user_id: str, current_user: str = Depends(get_current_active_user)):
+async def get_user_gallery_urls(current_user: str = Depends(get_current_active_user)):
     try:
         # Create a BlobServiceClient
         blob_service_client = BlobServiceClient.from_connection_string(connect_str)
         container_client = blob_service_client.get_container_client(container_name)
 
         # List blobs in the user's folder
-        user_folder = f"{user_id}/"
+        user_folder = f"{current_user.email}/"
         blobs = container_client.list_blobs(name_starts_with=user_folder)
 
         # Get the URLs for all blobs

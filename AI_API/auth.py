@@ -95,7 +95,13 @@ async def signup(user: UserSignup):
         "hashed_password": hashed_password,
         "disabled": False,
     }
-    return {"msg": "User created successfully"}
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email}, expires_delta=access_token_expires
+    )
+    
+    return {"msg": "User created successfully", "access_token": access_token, "token_type": "bearer"}
 
 # API for user login and token generation
 @router.post("/token", response_model=Token)
