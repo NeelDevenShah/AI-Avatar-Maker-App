@@ -75,10 +75,6 @@ class ParameterizedImageRequest(BaseModel):
     
 def get_sas_url_single_image(blob_name: str):
     try:
-        # Create a BlobServiceClient using the account name and key
-        # TODO: Remove
-        # blob_service_client = BlobServiceClient(account_url=f"https://{account_name}.blob.core.windows.net", credential=account_key)
-
         # Set the expiry time for the SAS token
         expiry_time = datetime.utcnow() + timedelta(minutes=5)  # Token valid for 1 hour
 
@@ -99,13 +95,9 @@ def get_sas_url_single_image(blob_name: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-def get_sas_for_list_images(user_email: str, image_urls):
+def get_sas_for_list_images(user_email: str):
     try:
         folder_name = user_email+"/"
-
-        # Create a BlobServiceClient using the account name and key
-        # TODO: Remove
-        # blob_service_client = BlobServiceClient(account_url=f"https://{account_name}.blob.core.windows.net", credential=account_key)
 
         # Set the expiry time for the SAS token
         expiry_time = datetime.utcnow() + timedelta(minutes=5)  # Token valid for 1 hour
@@ -162,10 +154,6 @@ async def generate_and_store_custom_image(request: CustomImageRequest, current_u
         
         # Generating the SAS token for accessing the blob
         image_url = get_sas_url_single_image(blob_name=filename)
-        
-        # TODO: Remove
-        # Get the URL of the uploaded image
-        # image_url = blob_client.url
         
         return {"image_url": image_url}
     except Exception as e:
@@ -225,10 +213,6 @@ async def generate_and_store_parameterized_image(request: ParameterizedImageRequ
         
         # Generating the SAS token for accessing the blob
         image_url = get_sas_url_single_image(blob_name=filename)
-        
-        # TODO: Remove
-        # Get the URL of the uploaded image
-        # image_url = blob_client.url
         
         return {"image_url": image_url}
     except Exception as e:
