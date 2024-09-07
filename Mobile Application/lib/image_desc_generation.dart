@@ -54,37 +54,82 @@ class _ImageDescGenPageState extends State<ImageDescGenPage> {
   @override
   Widget build(BuildContext context) {
     return BasePage(
-      title: 'Generate Image based on Options',
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: EdgeInsets.all(16.0),
-          children: [
-            SizedBox(height: 16),
-            TextFormField(
-              decoration: InputDecoration(labelText: 'Description'),
-              maxLines: 5,
-              onSaved: (value) {
-                _description = value;
-                _formData['description'] = value!;
-              },
-            ),
-            SizedBox(height: 36),
-            ElevatedButton(
-              onPressed: _submitForm,
-              child: _isLoading ? CircularProgressIndicator() : Text('Submit'),
-            ),
-            if (_imagePath != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: Image.network(
-                  _imagePath!,
-                  height: 200,
-                  width: 200,
-                  fit: BoxFit.cover,
+      title: 'Generate Image based on Description',
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Enter Description',
+                  labelStyle: TextStyle(color: Colors.blueAccent),
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
+                maxLines: 5,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a description';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  _description = value;
+                  _formData['description'] = value!;
+                },
               ),
-          ],
+              SizedBox(height: 36),
+              ElevatedButton(
+                onPressed: _submitForm,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  textStyle: TextStyle(fontSize: 18),
+                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text('Generate Image'),
+              ),
+              if (_imagePath != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 24.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Generated Image:',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueAccent,
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      Image.network(
+                        _imagePath!,
+                        height: 200,
+                        width: 200,
+                        fit: BoxFit.cover,
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
