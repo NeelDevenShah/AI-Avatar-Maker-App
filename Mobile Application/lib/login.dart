@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'database_helper.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -12,15 +13,46 @@ class _LoginPageState extends State<LoginPage> {
   String _password = '';
   String _errorMessage = '';
 
-  void _login() async {
+  // URL of your authentication API
+  final String _tokenUrl = 'https://5a9e-136-233-130-144.ngrok-free.app/auth/token'; // Replace with your actual API URL
+
+  Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      final user = await DatabaseHelper().getUserByEmail(_email);
-      if (user != null && user['password'] == _password) {
-        Navigator.pushReplacementNamed(context, '/home');
-      } else {
+
+      try {
+        // Make the POST request to the token endpoint
+        final response = await http.post(
+          Uri.parse(_tokenUrl),
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: {
+            'username': _email, // 'username' is used for 'email' in OAuth2PasswordRequestForm
+            'password': _password,
+          },
+        );
+
+        if (response.statusCode == 200) {
+          // If the server returns a 200 OK response, parse the JSON
+          final data = json.decode(response.body);
+
+          // Extract the access token from the response
+          final String accessToken = data['access_token'];
+
+          // Here, you could save the token securely using secure storage
+          // For example: await FlutterSecureStorage().write(key: 'token', value: accessToken);
+
+          // Navigate to the home page
+          Navigator.pushReplacementNamed(context, '/home');
+        } else {
+          // If the server did not return a 200 OK response, throw an error
+          setState(() {
+            _errorMessage = 'Invalid email or password';
+          });
+        }
+      } catch (e) {
+        // If there is an error with the request, show an error message
         setState(() {
-          _errorMessage = 'Invalid email or password';
+          _errorMessage = 'An error occurred. Please try again.';
         });
       }
     }
@@ -41,11 +73,11 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   Text(
                     'Login',
-                    style: Theme.of(context).textTheme.headlineMedium, // Updated to headlineMedium
+                    style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   SizedBox(height: 24),
                   TextFormField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Email',
                     ),
                     validator: (value) {
@@ -58,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   SizedBox(height: 16),
                   TextFormField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Password',
                     ),
                     obscureText: true,

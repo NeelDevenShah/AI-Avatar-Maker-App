@@ -64,7 +64,7 @@ class _ImageDescGenPageState extends State<ImageDescGenPage> {
               TextFormField(
                 decoration: InputDecoration(
                   labelText: 'Enter Description',
-                  labelStyle: TextStyle(color: Colors.blueAccent),
+                  labelStyle: const TextStyle(color: Colors.blueAccent),
                   filled: true,
                   fillColor: Colors.grey[200],
                   border: OutlineInputBorder(
