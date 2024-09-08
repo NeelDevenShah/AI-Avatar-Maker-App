@@ -5,6 +5,8 @@ from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from typing import Optional
+from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import DESCENDING
 
 # Initialize the router
 router = APIRouter()
@@ -20,8 +22,12 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # OAuth2 password flow
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-# In-memory database for demonstration purposes
-fake_users_db = {}
+# MongoDB client setup
+MONGO_DETAILS = "mongodb://localhost:27017"  
+
+client = AsyncIOMotorClient(MONGO_DETAILS)
+database = client["ai_api"]
+user_collection = database["users"]
 
 # Pydantic models
 class User(BaseModel):
@@ -49,21 +55,21 @@ class TokenData(BaseModel):
     email: Optional[str] = None
 
 # Utility functions
-def verify_password(plain_password, hashed_password):
+async def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-def get_user(db, email: str):
-    if email in db:
-        user_dict = db[email]
-        return UserInDB(**user_dict)
+async def get_user(email: str):
+    user = await user_collection.find_one({"email": email})
+    if user:
+        return UserInDB(**user)
     return None
 
-def authenticate_user(db, email: str, password: str):
-    user = get_user(db, email)
-    if not user or not verify_password(password, user.hashed_password):
+async def authenticate_user(email: str, password: str):
+    user = await get_user(email)
+    if not user or not await verify_password(password, user.hashed_password):
         return False
     return user
 
@@ -80,14 +86,14 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 # API for user signup
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
 async def signup(user: UserSignup):
-    if user.email in fake_users_db:
+    if await user_collection.find_one({"email": user.email}):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
         )
         
     hashed_password = get_password_hash(user.password)  # Hash the plain password
-    fake_users_db[user.email] = {
+    user_dict = {
         "email": user.email,
         "first_name": user.first_name,
         "last_name": user.last_name,
@@ -95,6 +101,7 @@ async def signup(user: UserSignup):
         "hashed_password": hashed_password,
         "disabled": False,
     }
+    await user_collection.insert_one(user_dict)
     
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
@@ -106,7 +113,7 @@ async def signup(user: UserSignup):
 # API for user login and token generation
 @router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)  # Using 'username' as 'email'
+    user = await authenticate_user(form_data.username, form_data.password)  # Using 'username' as 'email'
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -135,7 +142,7 @@ async def read_users_me(token: str = Depends(oauth2_scheme)):
         token_data = TokenData(email=email)
     except JWTError:
         raise credentials_exception
-    user = get_user(fake_users_db, email=token_data.email)
+    user = await get_user(email=token_data.email)
     if user is None:
         raise credentials_exception
     return user
@@ -150,4 +157,4 @@ if __name__ == "__main__":
     import uvicorn
 
     # Run the FastAPI app
-    uvicorn.run(app, port=8000)
+    uvicorn.run("app:app", port=8000)
