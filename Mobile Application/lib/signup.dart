@@ -29,7 +29,7 @@ class _SignupPageState extends State<SignupPage> {
       };
 
       // URL of your external API
-      final url = Uri.parse('https://5a9e-136-233-130-144.ngrok-free.app/auth/signup');
+      final url = Uri.parse('https://f63e-136-233-130-144.ngrok-free.app/auth/signup');
 
       // Make the HTTP request
       try {
@@ -40,6 +40,7 @@ class _SignupPageState extends State<SignupPage> {
           },
           body: jsonEncode(requestBody),
         );
+        print(response);
 
         if (response.statusCode == 200) {
           // Successfully created user
