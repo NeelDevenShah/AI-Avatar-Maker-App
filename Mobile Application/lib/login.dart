@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'config.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -15,7 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   String _errorMessage = '';
 
   // URL of your authentication API
-  final String _tokenUrl = 'https://f63e-136-233-130-144.ngrok-free.app/auth/token'; // Replace with your actual API URL
+  final String _tokenUrl = '${Config.baseUrl}/auth/token'; // Replace with your actual API URL
 
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {

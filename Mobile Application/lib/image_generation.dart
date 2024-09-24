@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'base_page.dart';
+import 'config.dart';
 
 class ImageGenerationPage extends StatefulWidget {
   @override
@@ -58,7 +59,7 @@ class _ImageGenerationPageState extends State<ImageGenerationPage> {
       try {
         // Make API call
         final response = await http.post(
-          Uri.parse('https://api.example.com/submit'),
+          Uri.parse('${Config.baseUrl}/generator/generate-parameterized-image'),
           body: json.encode(_formData),
           headers: {'Content-Type': 'application/json'},
         );
@@ -203,11 +204,11 @@ class _ImageGenerationPageState extends State<ImageGenerationPage> {
                 validator: (value) =>
                     value == null ? 'Please select your body type' : null,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 decoration: InputDecoration(
                   labelText: 'Hair Color',
-                  labelStyle: TextStyle(color: Colors.blueAccent),
+                  labelStyle: const TextStyle(color: Colors.blueAccent),
                   filled: true,
                   fillColor: Colors.grey[200],
                   border: OutlineInputBorder(
