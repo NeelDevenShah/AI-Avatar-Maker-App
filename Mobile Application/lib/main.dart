@@ -5,6 +5,7 @@ import 'image_generation.dart';
 import 'image_desc_generation.dart';
 import 'signup.dart';
 import 'login.dart';
+import 'user.dart';
 
 void main() {
   runApp(MyApp());
@@ -51,7 +52,7 @@ class MyApp extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.blue,
             foregroundColor: Colors.white,
-            textStyle: TextStyle(
+            textStyle: const TextStyle(
               fontWeight: FontWeight.bold,
             ),
             shape: RoundedRectangleBorder(
@@ -84,6 +85,7 @@ class MyApp extends StatelessWidget {
         '/generate-options': (context) => ImageGenerationPage(),
         '/generate-desc': (context) => ImageDescGenPage(),
         '/gallery': (context) => GalleryPage(),
+        '/user': (context) => UserPage(),
       },
     );
   }

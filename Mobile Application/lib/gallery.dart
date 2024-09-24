@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'config.dart';
 
 // Initialize secure storage
 const storage =  FlutterSecureStorage();
 
 
 class GalleryPage extends StatelessWidget {
-  final String apiUrl = 'https://f63e-136-233-130-144.ngrok-free.app/get-user-gallery'; 
+  final String apiUrl = '${Config.baseUrl}/get-user-gallery'; 
 
   Future<List<String>> fetchGallery() async {
     // Fetch the token from secure storage
