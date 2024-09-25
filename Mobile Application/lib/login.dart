@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'config.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -14,7 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   String _errorMessage = '';
 
   // URL of your authentication API
-  final String _tokenUrl = 'https://5a9e-136-233-130-144.ngrok-free.app/auth/token'; // Replace with your actual API URL
+  final String _tokenUrl = '${Config.baseUrl}/auth/token'; // Replace with your actual API URL
 
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
@@ -30,6 +32,7 @@ class _LoginPageState extends State<LoginPage> {
             'password': _password,
           },
         );
+        print(response.body);
 
         if (response.statusCode == 200) {
           // If the server returns a 200 OK response, parse the JSON
@@ -39,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
           final String accessToken = data['access_token'];
 
           // Here, you could save the token securely using secure storage
-          // For example: await FlutterSecureStorage().write(key: 'token', value: accessToken);
+          await const FlutterSecureStorage().write(key: 'token', value: accessToken);
 
           // Navigate to the home page
           Navigator.pushReplacementNamed(context, '/home');
@@ -61,7 +64,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
+      appBar: AppBar(title: const Text('Login')),
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -75,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
                     'Login',
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   TextFormField(
                     decoration: const InputDecoration(
                       labelText: 'Email',
@@ -88,7 +91,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     onSaved: (value) => _email = value!,
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   TextFormField(
                     decoration: const InputDecoration(
                       labelText: 'Password',
@@ -102,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     onSaved: (value) => _password = value!,
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: _login,
                     child: Text('Login'),
@@ -112,19 +115,19 @@ class _LoginPageState extends State<LoginPage> {
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Text(
                         _errorMessage,
-                        style: TextStyle(color: Colors.red),
+                        style: const TextStyle(color: Colors.red),
                       ),
                     ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Not a member?"),
+                      const Text("Not a member?"),
                       TextButton(
                         onPressed: () {
                           Navigator.pushNamed(context, '/signup');
                         },
-                        child: Text('Sign Up'),
+                        child: const Text('Sign Up'),
                       ),
                     ],
                   ),

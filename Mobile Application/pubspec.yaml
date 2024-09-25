@@ -39,6 +39,7 @@ dependencies:
   mongo_dart: ^0.10.3
   sqflite: ^2.3.3+1
   path: ^1.9.0
+  flutter_secure_storage: ^4.2.1
 
 dev_dependencies:
   flutter_test:

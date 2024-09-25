@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'base_page.dart';
+import 'config.dart';
 
 class ImageDescGenPage extends StatefulWidget {
   @override
@@ -14,7 +15,7 @@ class _ImageDescGenPageState extends State<ImageDescGenPage> {
   String? _imagePath;
   bool _isLoading = false;
 
-  String? _description;
+  String? _instruction;
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
@@ -27,7 +28,7 @@ class _ImageDescGenPageState extends State<ImageDescGenPage> {
       try {
         // Make API call
         final response = await http.post(
-          Uri.parse('https://api.example.com/submit'),
+          Uri.parse('${Config.baseUrl}/generator/generate-custom-image'),
           body: json.encode(_formData),
           headers: {'Content-Type': 'application/json'},
         );
@@ -80,8 +81,8 @@ class _ImageDescGenPageState extends State<ImageDescGenPage> {
                   return null;
                 },
                 onSaved: (value) {
-                  _description = value;
-                  _formData['description'] = value!;
+                  _instruction = value;
+                  _formData['instruction'] = value!;
                 },
               ),
               SizedBox(height: 36),
@@ -92,7 +93,7 @@ class _ImageDescGenPageState extends State<ImageDescGenPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  textStyle: TextStyle(fontSize: 18),
+                  textStyle: const TextStyle(fontSize: 18),
                 ),
                 child: _isLoading
                     ? const SizedBox(
@@ -103,14 +104,14 @@ class _ImageDescGenPageState extends State<ImageDescGenPage> {
                           strokeWidth: 2,
                         ),
                       )
-                    : Text('Generate Image'),
+                    : const Text('Generate Image'),
               ),
               if (_imagePath != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 24.0),
                   child: Column(
                     children: [
-                      Text(
+                      const Text(
                         'Generated Image:',
                         style: TextStyle(
                           fontSize: 18,
@@ -118,7 +119,7 @@ class _ImageDescGenPageState extends State<ImageDescGenPage> {
                           color: Colors.blueAccent,
                         ),
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       Image.network(
                         _imagePath!,
                         height: 200,

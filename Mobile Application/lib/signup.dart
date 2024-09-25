@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'config.dart';
 
 class SignupPage extends StatefulWidget {
   @override
@@ -29,7 +30,7 @@ class _SignupPageState extends State<SignupPage> {
       };
 
       // URL of your external API
-      final url = Uri.parse('https://5a9e-136-233-130-144.ngrok-free.app/auth/signup');
+      final url = Uri.parse('${Config.baseUrl}/auth/signup');
 
       // Make the HTTP request
       try {
@@ -40,6 +41,7 @@ class _SignupPageState extends State<SignupPage> {
           },
           body: jsonEncode(requestBody),
         );
+        print(response);
 
         if (response.statusCode == 200) {
           // Successfully created user
