@@ -1,6 +1,6 @@
-# AI Avatar Maker
+# AI Avatar Maker App
 
-**AI Avatar Maker** is a Flutter-based application that allows users to create realistic human avatars using AI technology. By collecting user input and feeding it into a powerful AI model, the app generates human-like images based on the given prompt. The cloud architecture behind this app enables users to generate these images with a simple click, ensuring a smooth and efficient experience.
+**AI Avatar Maker App** is a Flutter-based application that allows users to create realistic human avatars using AI technology. By collecting user input and feeding it into a powerful AI model, the app generates human-like images based on the given prompt. The cloud architecture behind this app enables users to generate these images with a simple click, ensuring a smooth and efficient experience.
 
 ## Features
 
@@ -9,6 +9,10 @@
 - **Cloud-Driven**: Leverages cloud infrastructure for fast, on-demand image generation.
 - **User-Friendly Interface**: Simple and intuitive design for seamless user experience.
 - **On-Click Generation**: Instantly generate avatars with just one click.
+
+## App Demo
+
+[![Watch the video](./assets/yt_tubnail.png)](https://youtu.be/bKuXaaJ9aqk?si=meGTfp_FH0ocqGOG)
 
 ## Installation
 
@@ -19,9 +23,14 @@ To install and run the app locally:
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/your-username/ai-avatar-maker.git
-   cd ai-avatar-maker
+   git clone https://github.com/neeldevenshah/ai-avatar-maker-app.git
    ```
+
+2. **Change the folder to frontend folder for frontend**
+
+```bash
+   cd Mobile Application
+```
 
 2. **Install dependencies**:
 
@@ -30,27 +39,25 @@ To install and run the app locally:
    ```
 
 3. **Run the app**:
+
    ```bash
    flutter run
    ```
 
-### FastAPI Backend
-
-1. **Clone the repository**:
-   Clone the backend repository (if separate):
+4. **For running backend**:
+   Open new terminal and change to backend directory:
 
    ```bash
-   git clone https://github.com/your-username/ai-avatar-maker-backend.git
-   cd ai-avatar-maker-backend
+   cd AI_API
    ```
 
-2. **Create a virtual environment**:
+5. **Create a virtual environment**:
 
    ```bash
    python -m venv venv
    ```
 
-3. **Activate the virtual environment**:
+6. **Activate the virtual environment**:
    On Windows:
 
    ```bash
@@ -63,13 +70,13 @@ To install and run the app locally:
    source venv/bin/activate
    ```
 
-4. **Install dependencies**:
+7. **Install dependencies**:
 
    ```bash
    pip install -r requirements.txt
    ```
 
-5. **Run the FastAPI server**:
+8. **Run the FastAPI server**:
    ```bash
    uvicorn main:app --reload
    ```
